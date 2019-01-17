@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.VideoView
 import com.bumptech.glide.Glide
 import com.example.mayank.kwizzapp.helpers.Converters
 import example.com.mymandir.Constants
@@ -21,16 +22,16 @@ import org.jetbrains.anko.find
 class PostFragment : Fragment(), View.OnClickListener {
 
     private var listener: OnFragmentInteractionListener? = null
-    private var save : Boolean = false
-    private var comment : Boolean = false
-    private var like : Boolean = false
-    private lateinit var mandirModel : MyMandirModel
+    private var save: Boolean = false
+    private var comment: Boolean = false
+    private var like: Boolean = false
+    private lateinit var mandirModel: MyMandirModel
     private val CLICKABLES = intArrayOf(R.id.ic_comment, R.id.ic_save, R.id.ic_like)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mandirModel= arguments?.getSerializable("MyMandirModel") as MyMandirModel
+        mandirModel = arguments?.getSerializable("MyMandirModel") as MyMandirModel
 
         logD("Text - ${mandirModel.text}")
         logD("Type - ${mandirModel.type}")
@@ -44,14 +45,26 @@ class PostFragment : Fragment(), View.OnClickListener {
         val textViewTitle = view.find<TextView>(R.id.textViewTitle)
         val profileImage = view.find<ImageView>(R.id.profile_image)
         val postImage = view.find<ImageView>(R.id.post_image_view)
+        val playImage = view.find<ImageView>(R.id.ic_play)
+        val postVideo = view.find<VideoView>(R.id.post_video_view)
 
         val timeStamp = Converters.fromTimestamp(mandirModel.createdAt)
-        if (mandirModel.attachments!=null){
+        if (mandirModel.attachments != null) {
             mandirModel.attachments.forEach { attachment ->
-                if (attachment.userName == null){
+                if (attachment.type == "video" || attachment.type == "audio") {
+                    postVideo.visibility = View.VISIBLE
+                    playImage.visibility = View.VISIBLE
                     testViewUserName.text = mandirModel.sender.name
                     Glide.with(this).load(mandirModel.sender.imageUrl).into(profileImage)
-                }else{
+                    Glide.with(this).load(mandirModel.sender.imageUrl).into(postImage)
+                    playImage.setOnClickListener {
+                        playImage.visibility = View.GONE
+                        postVideo.setVideoPath(attachment.url);
+                        postVideo.start();
+                    }
+                } else {
+                    postVideo.visibility = View.GONE
+                    playImage.visibility = View.GONE
                     testViewUserName.text = attachment.userName
                     Glide.with(this).load(attachment.userImage).into(profileImage)
                     Glide.with(this).load(attachment.mobile_url).into(postImage)
@@ -61,38 +74,38 @@ class PostFragment : Fragment(), View.OnClickListener {
 
         testViewTimeStamp.text = Constants.getFormatDate(timeStamp!!)
         textViewTitle.text = mandirModel.title
-        for (id in CLICKABLES){
+        for (id in CLICKABLES) {
             view.find<ImageView>(id).setOnClickListener(this)
         }
         return view
     }
 
     override fun onClick(v: View?) {
-        when(v?.id){
-            R.id.ic_save ->{
-                if (!save){
+        when (v?.id) {
+            R.id.ic_save -> {
+                if (!save) {
                     save = true
                     v.find<ImageView>(R.id.ic_save).setImageResource(R.drawable.ic_save_blue)
-                }else{
-                    save =false
+                } else {
+                    save = false
                     v.find<ImageView>(R.id.ic_save).setImageResource(R.drawable.ic_save_grey)
                 }
             }
-            R.id.ic_comment ->{
-                if (!comment){
+            R.id.ic_comment -> {
+                if (!comment) {
                     comment = true
                     v.find<ImageView>(R.id.ic_comment).setImageResource(R.drawable.ic_comment_blue)
-                }else{
-                    comment =false
+                } else {
+                    comment = false
                     v.find<ImageView>(R.id.ic_comment).setImageResource(R.drawable.ic_comment_grey)
                 }
             }
-            R.id.ic_like ->{
-                if (!like){
+            R.id.ic_like -> {
+                if (!like) {
                     like = true
                     v.find<ImageView>(R.id.ic_like).setImageResource(R.drawable.ic_thumb_up_blue)
-                }else{
-                    like =false
+                } else {
+                    like = false
                     v.find<ImageView>(R.id.ic_like).setImageResource(R.drawable.ic_thumb_up_grey)
                 }
             }

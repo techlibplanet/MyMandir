@@ -32,6 +32,7 @@ class MandirPostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val saveImage = itemView.find<ImageView>(R.id.ic_save)
         val commentImage = itemView.find<ImageView>(R.id.ic_comment)
         val likeImage = itemView.find<ImageView>(R.id.ic_like)
+        val playImage = itemView.find<ImageView>(R.id.ic_play)
 
         itemView.setOnClickListener {
             val bundle = Bundle()
@@ -74,10 +75,13 @@ class MandirPostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val timeStamp = Converters.fromTimestamp(postModel.createdAt)
         if (postModel.attachments != null) {
             postModel.attachments.forEach { attachment ->
-                if (attachment.userName == null) {
+                if (attachment.type == "video" || attachment.type == "audio") {
+                    playImage.visibility = View.VISIBLE
                     testViewUserName.text = postModel.sender.name
                     Glide.with(context).load(postModel.sender.imageUrl).into(profileImage)
+                    Glide.with(context).load(postModel.sender.imageUrl).into(postImage)
                 } else {
+                    playImage.visibility = View.GONE
                     testViewUserName.text = attachment.userName
                     Glide.with(context).load(attachment.userImage).into(profileImage)
                     Glide.with(context).load(attachment.mobile_url).into(postImage)
