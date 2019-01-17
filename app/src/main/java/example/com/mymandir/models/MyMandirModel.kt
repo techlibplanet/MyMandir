@@ -1,11 +1,13 @@
 package example.com.mymandir.models
 
+import java.io.Serializable
+
 class MyMandirModel(val xid : String, val temple : Int, val user : Long, val text : String, val postType : String, val type : String,
                     val commentCount : Int, val reactionCount : Int, val likeCount : Int, val shareCount : Int, val isFeatured : Boolean,
                     val code : String, val precantCount : Int, val viewCount: Int, val isRepost : Boolean, val isHidden : Boolean,
                     val isValidPost : Boolean, val title : String, val isPNSent : Boolean, val parentId : String, val id : Long,
                     val createdAt : Long,val tags : List<Tags>, val attachments : List<Attachments>,val webPath : String,val sender : Sender, val recentReactions : List<RecentReactions>, val fromCache : Boolean, val liked : Boolean,
-                    val saved : Boolean, val userFollowsPoster : Boolean)
+                    val saved : Boolean, val userFollowsPoster : Boolean) : Serializable
 
 class Tags(val id : Long, val description : String, val text : String, val imageUrl : String)
 

@@ -7,5 +7,5 @@ import retrofit2.http.GET
 interface IMyMandir {
 
     @GET("dummy")
-    fun getData() : Observable<List<MyMandirModel>>
+    fun getData() : Observable<MutableList<MyMandirModel>>
 }

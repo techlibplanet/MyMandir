@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">MyMandir</string>
     <string name="preference_file_key">mymandir_pref_file_key</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
