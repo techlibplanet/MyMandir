@@ -20,7 +20,9 @@ import example.com.mymandir.helper.processRequest
 import example.com.mymandir.models.MyMandirModel
 import example.com.mymandir.network.IMyMandir
 import io.reactivex.disposables.CompositeDisposable
+import net.rmitsolutions.mfexpert.lms.helpers.hideProgress
 import net.rmitsolutions.mfexpert.lms.helpers.logD
+import net.rmitsolutions.mfexpert.lms.helpers.showProgress
 import net.rmitsolutions.mfexpert.lms.helpers.toast
 import org.jetbrains.anko.find
 import org.jetbrains.anko.toast
@@ -64,13 +66,15 @@ class MainFragment : Fragment() {
 
 
     private fun setMyMandirItem() {
+        showProgress()
         compositeDisposable.add(myMandirService.getData()
                 .processRequest(
                         { response ->
-                            logD("Inside Response")
+                            hideProgress()
                             setMandirRecyclerViewAdapter(response)
                         },
                         {err ->
+                            hideProgress()
                             toast("Error - $err")
                             logD("Error - $err")
                         }
