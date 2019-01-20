@@ -32,15 +32,6 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp" />
 
-        <TextView
-            android:id="@+id/progress_text"
-            android:layout_marginEnd="@dimen/space_8dp"
-            android:textSize="@dimen/space_16dp"
-            android:layout_marginStart="@dimen/space_16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Please wait..."/>
-
     </LinearLayout>
 
 

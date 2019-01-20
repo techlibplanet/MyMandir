@@ -10,22 +10,17 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.mayank.kwizzapp.dependency.components.DaggerInjectActivityComponent
 import com.example.mayank.kwizzapp.dependency.components.DaggerInjectFragmentComponent
 import example.com.mymandir.MyMandirApplication
 
 import example.com.mymandir.R
-import example.com.mymandir.adaptermandir.MandirPostAdapter
+import example.com.mymandir.adaptermandir.MyMandirAdapter
 import example.com.mymandir.helper.processRequest
 import example.com.mymandir.models.MyMandirModel
 import example.com.mymandir.network.IMyMandir
 import io.reactivex.disposables.CompositeDisposable
-import net.rmitsolutions.mfexpert.lms.helpers.hideProgress
-import net.rmitsolutions.mfexpert.lms.helpers.logD
-import net.rmitsolutions.mfexpert.lms.helpers.showProgress
-import net.rmitsolutions.mfexpert.lms.helpers.toast
+import net.rmitsolutions.mfexpert.lms.helpers.*
 import org.jetbrains.anko.find
-import org.jetbrains.anko.toast
 import javax.inject.Inject
 
 
@@ -37,12 +32,13 @@ class MainFragment : Fragment() {
     private lateinit var compositeDisposable : CompositeDisposable
 
     private lateinit var mandirRecyclerView: RecyclerView
-    val adapterMandir: MandirPostAdapter by lazy { MandirPostAdapter() }
+    val adapterMandir: MyMandirAdapter by lazy { MyMandirAdapter() }
     lateinit var modelListMandir: MutableList<MyMandirModel>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_main, container, false)
@@ -60,7 +56,12 @@ class MainFragment : Fragment() {
         mandirRecyclerView.adapter = adapterMandir
         modelListMandir = mutableListOf<MyMandirModel>()
 
-        setMyMandirItem()
+        if (activity?.isNetConnected()!!){
+            setMyMandirItem()
+        }else{
+            toast("No Internet!")
+        }
+
         return view
     }
 

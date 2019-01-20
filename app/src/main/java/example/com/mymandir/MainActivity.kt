@@ -21,9 +21,6 @@ class MainActivity : AppCompatActivity(), MainFragment.OnFragmentInteractionList
         switchToFragment(mainFrag)
     }
 
-    override fun onFragmentInteraction(uri: Uri) {
-
-    }
 
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
@@ -39,6 +36,9 @@ class MainActivity : AppCompatActivity(), MainFragment.OnFragmentInteractionList
             }
             1 -> supportFragmentManager.popBackStack()
         }
+    }
+
+    override fun onFragmentInteraction(uri: Uri) {
 
     }
 

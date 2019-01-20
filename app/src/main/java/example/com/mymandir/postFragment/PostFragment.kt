@@ -3,24 +3,26 @@ package example.com.mymandir.postFragment
 import android.Manifest
 import android.app.ProgressDialog
 import android.content.Context
+import android.databinding.DataBindingUtil
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Environment
 import android.support.v4.app.Fragment
+import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.MediaController
-import android.widget.TextView
 import android.widget.VideoView
-import com.bumptech.glide.Glide
 import com.example.mayank.kwizzapp.helpers.Converters
 import example.com.mymandir.Constants
 
 import example.com.mymandir.R
+import example.com.mymandir.databinding.PostDataBinding
+import example.com.mymandir.models.ClickHandler
 import example.com.mymandir.models.MyMandirModel
 import net.rmitsolutions.libcam.LibPermissions
 import net.rmitsolutions.mfexpert.lms.helpers.logD
@@ -29,6 +31,8 @@ import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PostFragment : Fragment(), View.OnClickListener {
 
@@ -38,32 +42,29 @@ class PostFragment : Fragment(), View.OnClickListener {
     private var like: Boolean = false
     private lateinit var mandirModel: MyMandirModel
     private val CLICKABLES = intArrayOf(R.id.ic_comment, R.id.ic_save, R.id.ic_like)
-    private lateinit var progressBar : android.app.ProgressDialog
-    private lateinit var playImage : ImageView
-    private lateinit var postVideo : VideoView
+    private lateinit var progressBar: android.app.ProgressDialog
+    private lateinit var postVideo: VideoView
     private lateinit var mediaController: MediaController
-    private lateinit var libPermission : LibPermissions
-    val permissions = arrayOf<String>(Manifest.permission.CAMERA,
+    private lateinit var libPermission: LibPermissions
+    private lateinit var dataBinding: PostDataBinding
+    val permissions = arrayOf<String>(
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION)
+            Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         mandirModel = arguments?.getSerializable("MyMandirModel") as MyMandirModel
 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_post, container, false)
-        val testViewUserName = view.find<TextView>(R.id.userName)
-        val testViewTimeStamp = view.find<TextView>(R.id.textViewTimeStamp)
-        val textViewTitle = view.find<TextView>(R.id.textViewTitle)
-        val profileImage = view.find<ImageView>(R.id.profile_image)
-        val postImage = view.find<ImageView>(R.id.post_image_view)
-        playImage = view.find<ImageView>(R.id.ic_play)
+
+        dataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_post, container, false)
+        val view = dataBinding.root
+        val timeStamp = Converters.fromTimestamp(mandirModel.createdAt)
+        mandirModel.timeStamp = Constants.getFormatDate(timeStamp!!)!!
+        dataBinding.postDataVm = mandirModel
+
         postVideo = view.find<VideoView>(R.id.post_video_view)
 
         libPermission = LibPermissions(this, permissions)
@@ -73,36 +74,33 @@ class PostFragment : Fragment(), View.OnClickListener {
         }
         libPermission.askPermissions(runnable)
 
-        val timeStamp = Converters.fromTimestamp(mandirModel.createdAt)
-        if (mandirModel.attachments != null) {
-            mandirModel.attachments.forEach { attachment ->
+        mandirModel.attachments.forEach { attachment ->
+
+            disablePlayButton(false)
+            disableVideo(true)
+            if (mandirModel.attachments != null) {
                 if (attachment.type == "video" || attachment.type == "audio") {
-                    postVideo.visibility = View.VISIBLE
-                    playImage.visibility = View.VISIBLE
-                    testViewUserName.text = mandirModel.sender.name
-                    Glide.with(this).load(mandirModel.sender.imageUrl).into(profileImage)
-                    Glide.with(this).load(mandirModel.sender.imageUrl).into(postImage)
-                    playImage.setOnClickListener {
-
-                        DownloadFileFromURL().execute(attachment.url)
-
-                    }
+                    dataBinding.sender = mandirModel.sender
+                    dataBinding.handler = (object : ClickHandler {
+                        override fun onClick(view: View) {
+                            DownloadFileFromURL().execute(attachment.url)
+                        }
+                    })
                 } else {
-                    postVideo.visibility = View.GONE
-                    playImage.visibility = View.GONE
-                    testViewUserName.text = attachment.userName
-                    Glide.with(this).load(attachment.userImage).into(profileImage)
-                    Glide.with(this).load(attachment.mobile_url).into(postImage)
+                    dataBinding.attachments = attachment
+                    disablePlayButton(true)
                 }
             }
         }
-
-        testViewTimeStamp.text = Constants.getFormatDate(timeStamp!!)
-        textViewTitle.text = mandirModel.title
-        for (id in CLICKABLES) {
-            view.find<ImageView>(id).setOnClickListener(this)
-        }
         return view
+    }
+
+    private fun disablePlayButton(disable: Boolean) {
+        dataBinding.playButton = disable
+    }
+
+    private fun disableVideo(disable: Boolean) {
+        dataBinding.playVideo = disable
     }
 
     override fun onClick(v: View?) {
@@ -137,6 +135,11 @@ class PostFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    fun getFormatDate(date: Date): String? {
+        val formatter: java.text.DateFormat = SimpleDateFormat(Constants.DISPLAY_FULL_DATE_FORMAT)
+        return formatter.format(date)
+    }
+
     override fun onPause() {
         super.onPause()
     }
@@ -147,7 +150,7 @@ class PostFragment : Fragment(), View.OnClickListener {
             super.onPreExecute()
 
             progressBar = ProgressDialog(activity)
-            progressBar.setCancelable(true);
+            progressBar.setCancelable(false);
             progressBar.setMessage("Downloading...")
             progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
             progressBar.progress = 0
@@ -156,7 +159,7 @@ class PostFragment : Fragment(), View.OnClickListener {
         }
 
         override fun doInBackground(vararg f_url: String): String? {
-            var count: Int=0
+            var count: Int = 0
             try {
                 val url = URL(f_url[0])
                 val connection = url.openConnection()
@@ -206,7 +209,8 @@ class PostFragment : Fragment(), View.OnClickListener {
 
             val imagePath = Environment.getExternalStorageDirectory().toString() + "/downloadedfile.mp4"
             logD(imagePath)
-            playImage.visibility = View.GONE
+            disablePlayButton(true)
+            disableVideo(false)
             postVideo.setVideoPath(imagePath);
             mediaController = MediaController(activity)
             mediaController.setMediaPlayer(postVideo)
@@ -215,7 +219,6 @@ class PostFragment : Fragment(), View.OnClickListener {
             postVideo.start();
         }
     }
-
 
 
     fun onButtonPressed(uri: Uri) {
