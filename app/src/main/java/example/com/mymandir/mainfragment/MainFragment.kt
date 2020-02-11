@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import example.com.mymandir.MyMandirApplication
 
 import example.com.mymandir.R
 import example.com.mymandir.adaptermandir.MyMandirAdapter
+import example.com.mymandir.helper.MoshiJsonHelper
 import example.com.mymandir.helper.processRequest
 import example.com.mymandir.models.MyMandirModel
 import example.com.mymandir.network.IMyMandir
@@ -88,6 +90,11 @@ class MainFragment : Fragment() {
     private fun setMandirRecyclerViewAdapter(modelList: MutableList<MyMandirModel>) {
         adapterMandir.items = modelList
         adapterMandir.notifyDataSetChanged()
+        var json= MoshiJsonHelper.ktToJson(modelList[0])
+        Log.v("json",json)
+
+        var obj=MoshiJsonHelper.jsonToKt<MyMandirModel>(json)
+        Log.v("json","\\\\\\ ${obj.toString()}")
     }
     fun onButtonPressed(uri: Uri) {
         listener?.onFragmentInteraction(uri)

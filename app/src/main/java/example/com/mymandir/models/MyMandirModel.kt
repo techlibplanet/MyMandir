@@ -5,6 +5,7 @@ import android.databinding.Bindable
 import java.io.Serializable
 import android.view.View
 import com.android.databinding.library.baseAdapters.BR
+import com.squareup.moshi.Json
 
 
 class MyMandirModel(val xid: String,

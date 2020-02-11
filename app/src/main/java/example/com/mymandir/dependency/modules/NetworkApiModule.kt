@@ -6,7 +6,7 @@ import dagger.Provides
 import example.com.mymandir.network.IMyMandir
 import retrofit2.Retrofit
 
-@Module(includes = arrayOf(HttpModule::class))
+@Module(includes = [HttpModule::class])
 class NetworkApiModule {
 
     @Provides

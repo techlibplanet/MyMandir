@@ -91,4 +91,8 @@ dependencies {
     implementation 'com.github.techlibplanet:LibCamLibrary:1.0.0'
 
     //kapt 'com.android.databinding:compiler:3.0.1'
+
+    // Moshi lib
+    implementation("com.squareup.moshi:moshi:1.9.2")
+    implementation("com.squareup.moshi:moshi-kotlin:1.9.2")
 }

@@ -2,9 +2,6 @@ package com.example.mayank.kwizzapp.helpers
 
 import com.google.gson.Gson
 
-/**
- * Created by Madhu on 13-Jun-2017.
- */
 object JsonHelper {
     inline fun <reified T> jsonToKt(jsonString: String): T {
         val gson = Gson()
